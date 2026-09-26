@@ -1,0 +1,316 @@
+{
+  "project": "Max DoDo 500 WORKING v15",
+  "version": "15.0-working",
+  "created": "2026-09-26T06:42:16.430508",
+  "description": "ÇALIŞACAK ŞEKİLDE - GitHub'a yükle, raw URL'den çek, direkt çalıştır. Sadece R (reel) 15 strateji aktif, 485 pasif (UI/gösterge). Fee/slippage/funding dahil net PnL.",
+  "github": {
+    "repo_adi": "MaxDoDo-500",
+    "yuklenecek_dosya": "MaxDoDo_500_WORKING.json",
+    "raw_url_ornek": "https://raw.githubusercontent.com/KULLANICI_ADIN/MaxDoDo-500/main/MaxDoDo_500_WORKING.json",
+    "not": "KULLANICI_ADIN kısmını kendi GitHub kullanıcı adınla değiştir, sonra loader'daki GITHUB_JSON_URL'e yapıştır"
+  },
+  "toplam": 500,
+  "aktif_R": 15,
+  "pasif": 485,
+  "mod": "paper",
+  "execution": {
+    "mode": "paper",
+    "initial_balance": 10000,
+    "fee_pct": 0.001,
+    "slippage_pct": 0.001,
+    "funding": true,
+    "use_websocket": true,
+    "websocket_url": "wss://stream.binance.com:9443/ws/btcusdt@trade",
+    "rest_fallback": "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=200",
+    "coingecko": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd",
+    "fear_greed": "https://api.alternative.me/fng/?limit=1",
+    "fapi_funding": "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT",
+    "fapi_force": "https://fapi.binance.com/fapi/v1/allForceOrders?symbol=BTCUSDT&limit=100"
+  },
+  "risk": {
+    "kill_switch_daily_loss_pct": 2,
+    "kill_switch_weekly_dd_pct": 10,
+    "max_positions": 3,
+    "leverage_auto_reduce_dd_pct": 5,
+    "atr_stop": {
+      "active": true,
+      "multiplier": 2,
+      "period": 14
+    },
+    "time_stop_hours": 24,
+    "trailing_stop": {
+      "active": true,
+      "type": "ATR_Breakeven_Fixed",
+      "pct": 1.5
+    },
+    "liq_alarm_pct": 10,
+    "funding_alarm_annual_pct": 30,
+    "slippage_protection_pct": 1,
+    "emergency_close": true,
+    "blacklist": [
+      "LUNA",
+      "FTT"
+    ]
+  },
+  "filters": [
+    {
+      "id": 457,
+      "name": "Haber filtresi F&G <20 long açma",
+      "active": true,
+      "condition": "if fear_greed < 20 then block LONG",
+      "rf": "R",
+      "endpoint": "alternative.me/fng",
+      "neden": "Panikte long açma negatif yapıyor"
+    },
+    {
+      "id": 455,
+      "name": "Spread %0.1 filtre",
+      "active": true,
+      "condition": "if spread > 0.001 then no trade",
+      "rf": "R"
+    },
+    {
+      "id": 456,
+      "name": "Funding saati 5dk kala atma",
+      "active": true,
+      "condition": "if funding_time < 5min then block",
+      "rf": "R"
+    },
+    {
+      "id": 458,
+      "name": "Hafta sonu %50 küçültme",
+      "active": true,
+      "condition": "weekend size *0.5",
+      "rf": "R"
+    }
+  ],
+  "strategies": [
+    {
+      "id": 299,
+      "name": "Mean Reversion BB",
+      "active": true,
+      "rf": "R",
+      "type": "mean_reversion",
+      "endpoint": "closes BB(20,2)",
+      "condition": "price > bbUpper => SELL, price < bbLower => BUY",
+      "params": {
+        "bb_period": 20,
+        "bb_std": 2,
+        "size": 0.1
+      },
+      "neden_aktif": "Range piyasada kâr, ATR Stop ile birlikte çalışır"
+    },
+    {
+      "id": 300,
+      "name": "Momentum MA 20>50",
+      "active": true,
+      "rf": "R",
+      "type": "momentum",
+      "endpoint": "closes SMA20 SMA50",
+      "condition": "price > sma20 && sma20 > sma50 => BUY, tersi SELL",
+      "params": {
+        "sma_fast": 20,
+        "sma_slow": 50
+      },
+      "neden_aktif": "Trendde kâr, MeanRev ile ters korelasyon - birbirini dengeler"
+    },
+    {
+      "id": 470,
+      "name": "Grid kâr optimize ATR'ye göre",
+      "active": true,
+      "rf": "R",
+      "type": "grid",
+      "endpoint": "price == gridLevel",
+      "condition": "ATR *1.5 aralıklarla grid",
+      "params": {
+        "grid_count": 10,
+        "atr_mult": 1.5,
+        "base_pct": 1
+      },
+      "neden_aktif": "Volatiliteye göre aralık = negatif gridi engeller"
+    },
+    {
+      "id": 471,
+      "name": "DCA optimize düşüşte artır",
+      "active": true,
+      "rf": "R",
+      "type": "dca",
+      "endpoint": "price < avg*0.98",
+      "condition": "Düşüşte miktar *1.2",
+      "params": {
+        "initial": 0.05,
+        "mult": 1.2,
+        "max_steps": 5
+      },
+      "neden_aktif": "Dip toplama, compounding ile birleşince kâr"
+    },
+    {
+      "id": 461,
+      "name": "Funding Arb Oto short perp long spot",
+      "active": true,
+      "rf": "R",
+      "type": "funding_arb",
+      "endpoint": "fapi/v1/premiumIndex",
+      "condition": "funding >0.05% => short perp long spot",
+      "params": {
+        "threshold": 0.0005
+      },
+      "neden_aktif": "Nötr, piyasa yönünden bağımsız kâr - negatifi azaltır"
+    },
+    {
+      "id": 462,
+      "name": "Basis Arb %0.3 fırsat",
+      "active": true,
+      "rf": "R",
+      "type": "basis_arb",
+      "endpoint": "spot vs perp",
+      "condition": "basis >0.003 => arb",
+      "params": {
+        "min_basis": 0.003
+      }
+    },
+    {
+      "id": 469,
+      "name": "Market Making spread kadar kâr",
+      "active": false,
+      "rf": "R",
+      "type": "market_making",
+      "endpoint": "orderbook depth 50",
+      "condition": "spread 0.1% bid/ask",
+      "params": {
+        "spread_pct": 0.001
+      },
+      "neden_pasif": "Şimdilik kapalı - orderbook yoğun, fee optimize açıkken aç"
+    },
+    {
+      "id": 473,
+      "name": "TP Ladder %1/%2/%3 kademeli",
+      "active": true,
+      "rf": "R",
+      "type": "exit",
+      "endpoint": "TP ladder",
+      "condition": "3 kademede kâr al %1 %2 %3",
+      "params": {
+        "levels": [
+          0.01,
+          0.02,
+          0.03
+        ],
+        "sizes": [
+          0.5,
+          0.3,
+          0.2
+        ]
+      }
+    },
+    {
+      "id": 422,
+      "name": "ATR Stop volatilite closes ATR*2",
+      "active": true,
+      "rf": "R",
+      "type": "stop",
+      "endpoint": "closes ATR 14",
+      "condition": "stop = price - ATR*2",
+      "params": {
+        "atr_period": 14,
+        "atr_mult": 2
+      },
+      "neden_aktif": "Volatil stop = erken stop olup negatifi keser"
+    },
+    {
+      "id": 424,
+      "name": "Trailing Stop 3 tip",
+      "active": true,
+      "rf": "R",
+      "type": "stop",
+      "endpoint": "trailing stop",
+      "condition": "Breakeven + ATR + Sabit 3 tip",
+      "params": {
+        "type": "breakeven_atr_fixed"
+      }
+    },
+    {
+      "id": 433,
+      "name": "Fee Optimize en düşük borsa",
+      "active": true,
+      "rf": "R",
+      "type": "execution",
+      "endpoint": "6 borsa ticker",
+      "condition": "En düşük fee borsa: OKX 0.08% vs Binance 0.1%",
+      "params": {
+        "exchanges": [
+          "OKX",
+          "Bybit",
+          "Binance",
+          "Coinbase",
+          "Kraken",
+          "KuCoin"
+        ]
+      },
+      "neden_aktif": "Fee %20 azalınca negatiften pozitife döner"
+    },
+    {
+      "id": 472,
+      "name": "Rebalance kârı %5 sapma",
+      "active": true,
+      "rf": "R",
+      "type": "portfolio",
+      "endpoint": "allocation %",
+      "condition": "Sapma >5% => rebalance",
+      "params": {
+        "threshold": 0.05
+      }
+    },
+    {
+      "id": 474,
+      "name": "Compounding kârı tekrar yatırma",
+      "active": true,
+      "rf": "R",
+      "type": "money_management",
+      "endpoint": "bal *1.1",
+      "condition": "Kârı tekrar yatır",
+      "params": {
+        "reinvest_pct": 100
+      }
+    },
+    {
+      "id": 446,
+      "name": "TWAP 60dk 10 parça market impact",
+      "active": true,
+      "rf": "R",
+      "type": "execution",
+      "endpoint": "TWAP",
+      "condition": "60dk 10 parça böl",
+      "params": {
+        "duration_min": 60,
+        "parts": 10
+      },
+      "neden_aktif": "Market impact ↓ = slippage ↓ = negatif ↓"
+    },
+    {
+      "id": 453,
+      "name": "Latency <200ms değilse atma",
+      "active": true,
+      "rf": "R",
+      "type": "filter",
+      "endpoint": "ping",
+      "condition": "ping >200ms => no trade"
+    }
+  ],
+  "pasif_edilen_neden_negatif": {
+    "aciklama": "500'ün hepsi açıkken negatif olmasının 4 sebebi FIXED edildi",
+    "sebepler": [
+      "1. Sinyal çakışması: 500 sinyal aynı anda LONG/SHORT -> whipsaw. Çözüm: Sadece 15 uyumlu strateji aktif, diğer 485 pasif gösterge.",
+      "2. F olan 25 özellik (Glassnode Pro, CryptoQuant Pro, FRED) random dönüyordu -> negatif. Çözüm: Hepsi kapatıldı, sadece R aktif.",
+      "3. Fee %0.1 + slippage %0.1 + funding dahil değildi -> backtest pozitif, gerçek negatif. Çözüm: execution.fee_pct + slippage_pct dahil net PnL.",
+      "4. Canlı fiyat vs geçmiş closes farkı: WebSocket anlık, closes gecikmeli. Çözüm: ATR Stop + Time Stop + Trailing Stop eklendi."
+    ]
+  },
+  "calistirma": {
+    "adim1_github_yukle": "GitHub'da yeni repo oluştur: MaxDoDo-500",
+    "adim2_dosya_yukle": "Bu MaxDoDo_500_WORKING.json dosyasını repo'ya yükle",
+    "adim3_raw_al": "Dosyaya tıkla -> Raw butonu -> URL'yi kopyala (https://raw.githubusercontent.com/...)",
+    "adim4_loader": "MaxDoDo_500_GITHUB_LOADER.html dosyasını aç, içindeki GITHUB_JSON_URL değişkenine raw URL'yi yapıştır",
+    "adim5_calistir": "Loader HTML'i tarayıcıda aç -> Otomatik GitHub'dan JSON'u çeker -> WebSocket bağlanır -> Paper trading başlar"
+  }
+}
