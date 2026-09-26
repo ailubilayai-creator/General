@@ -1,0 +1,1198 @@
+{
+  "project": "Max DoDo 500 WORKING v17 - 200 Filtre + Tek İndirme",
+  "version": "17.0-200filter-single-download",
+  "created": "2026-09-26T08:56:11.237326",
+  "aciklama": "200 filtre: 110 Risk + 90 Kar. Hepsi R. + Yıllar için tek indirme: 2017-2026 10 yıl 1m veriyi tek tıkla indir, blacktest için birleştir.",
+  "toplam": 200,
+  "dagilim": {
+    "risk_toplam": 110,
+    "kar_toplam": 90,
+    "risk_eski": 40,
+    "risk_yeni": 70,
+    "kar_eski": 40,
+    "kar_yeni": 50
+  },
+  "risk_110": [
+    {
+      "id": 501,
+      "name": "Likidite derinliği < $1M blok",
+      "type": "risk",
+      "condition": "orderbook depth 50 bid+ask < 1M => no trade",
+      "endpoint": "Binance depth 50",
+      "rf": "R",
+      "katki": "Tahtası boş coin'de slippage %5 olmasın"
+    },
+    {
+      "id": 502,
+      "name": "Funding > %0.1 perp kapat",
+      "type": "risk",
+      "condition": "funding >0.001 => close short perp",
+      "endpoint": "fapi/v1/premiumIndex",
+      "rf": "R"
+    },
+    {
+      "id": 503,
+      "name": "Volatilite ATR > %5 pozisyon %50 küçült",
+      "type": "risk",
+      "condition": "ATR(14)/price >0.05 => size *0.5",
+      "endpoint": "closes ATR",
+      "rf": "R"
+    },
+    {
+      "id": 504,
+      "name": "Ardışık 3 zarar 1 saat mola",
+      "type": "risk",
+      "condition": "last 3 trades loss => pause 60min",
+      "endpoint": "trades array",
+      "rf": "R"
+    },
+    {
+      "id": 505,
+      "name": "BTC.D < %40 altcoin long blok",
+      "type": "risk",
+      "condition": "BTC dominance <40 => no alt long",
+      "endpoint": "CoinGecko dominance",
+      "rf": "R"
+    },
+    {
+      "id": 506,
+      "name": "FOMC/CPI günü 15-16 işlem yok",
+      "type": "risk",
+      "condition": "news calendar FOMC CPI => block 15:00-16:00 UTC",
+      "endpoint": "FRED calendar",
+      "rf": "R"
+    },
+    {
+      "id": 507,
+      "name": "Gece 02-06 TR likidite düşük blok",
+      "type": "risk",
+      "condition": "hour TR 2-6 => no new pos",
+      "endpoint": "Date()",
+      "rf": "R"
+    },
+    {
+      "id": 508,
+      "name": "Korelasyon BTC-ETH <0.5 blok",
+      "type": "risk",
+      "condition": "corr(BTC,ETH,50) <0.5 => no trade",
+      "endpoint": "closes correlation",
+      "rf": "R"
+    },
+    {
+      "id": 509,
+      "name": "Orderbook imbalance >%70 ters blok",
+      "type": "risk",
+      "condition": "bid/ask imbalance >0.7 => block opposite",
+      "endpoint": "depth 50",
+      "rf": "R"
+    },
+    {
+      "id": 510,
+      "name": "Cuma akşamı yeni poz açma",
+      "type": "risk",
+      "condition": "Friday 18:00+ UTC => no new",
+      "endpoint": "Date()",
+      "rf": "R"
+    },
+    {
+      "id": 511,
+      "name": "Spread > %0.15 blok",
+      "type": "risk",
+      "condition": "spread >0.0015 => no trade",
+      "endpoint": "ticker spread",
+      "rf": "R"
+    },
+    {
+      "id": 512,
+      "name": "Günlük 5 trade limiti",
+      "type": "risk",
+      "condition": "trades today >=5 => stop",
+      "endpoint": "trades count",
+      "rf": "R"
+    },
+    {
+      "id": 513,
+      "name": "Aynı coinde max 2 poz",
+      "type": "risk",
+      "condition": "positions per symbol <=2",
+      "endpoint": "positions",
+      "rf": "R"
+    },
+    {
+      "id": 514,
+      "name": "Leverage >5x blok",
+      "type": "risk",
+      "condition": "leverage >5 => reject",
+      "endpoint": "config",
+      "rf": "R"
+    },
+    {
+      "id": 515,
+      "name": "Liq mesafesi <%8 ise küçült %50",
+      "type": "risk",
+      "condition": "liq distance <0.08 => size *0.5",
+      "endpoint": "liq calc",
+      "rf": "R"
+    },
+    {
+      "id": 516,
+      "name": "Volatilite 2x artarsa dur",
+      "type": "risk",
+      "condition": "ATR today / ATR yesterday >2 => pause 30min",
+      "endpoint": "ATR",
+      "rf": "R"
+    },
+    {
+      "id": 517,
+      "name": "BTC -%3 altında altcoin short blok",
+      "type": "risk",
+      "condition": "BTC -3% 1h => no alt short",
+      "endpoint": "BTC change",
+      "rf": "R"
+    },
+    {
+      "id": 518,
+      "name": "API hata 3 kez -> 5dk bekle",
+      "type": "risk",
+      "condition": "api errors >=3 => pause",
+      "endpoint": "fetch error",
+      "rf": "R"
+    },
+    {
+      "id": 519,
+      "name": "Bakiye <%10 kalırsa stop",
+      "type": "risk",
+      "condition": "balance < initial*0.1 => emergency close",
+      "endpoint": "balance",
+      "rf": "R"
+    },
+    {
+      "id": 520,
+      "name": "Kaldıraçlı token blacklist",
+      "type": "risk",
+      "condition": "symbol includes UP DOWN BULL BEAR => block",
+      "endpoint": "symbol filter",
+      "rf": "R"
+    },
+    {
+      "id": 521,
+      "name": "Pump >%15 5dk içinde girme",
+      "type": "risk",
+      "condition": "price change 5m >15% => no chase",
+      "endpoint": "price change",
+      "rf": "R"
+    },
+    {
+      "id": 522,
+      "name": "Dump >%15 5dk içinde satma",
+      "type": "risk",
+      "condition": "price change 5m <-15% => no panic sell",
+      "endpoint": "price change",
+      "rf": "R"
+    },
+    {
+      "id": 523,
+      "name": "RSI 80 üstü long blok 90 altı short blok",
+      "type": "risk",
+      "condition": "RSI>80 no long, RSI<20 no short",
+      "endpoint": "RSI14",
+      "rf": "R"
+    },
+    {
+      "id": 524,
+      "name": "BB dışı %2 fazla ise blok",
+      "type": "risk",
+      "condition": "price > bbUpper*1.02 => no long",
+      "endpoint": "BB",
+      "rf": "R"
+    },
+    {
+      "id": 525,
+      "name": "Hacim < 20MA %50 altı ise blok",
+      "type": "risk",
+      "condition": "vol < volMA20*0.5 => no trade",
+      "endpoint": "volume MA",
+      "rf": "R"
+    },
+    {
+      "id": 526,
+      "name": "ETH gas >100 gwei DeFi blok",
+      "type": "risk",
+      "condition": "gas >100 => no DeFi arb",
+      "endpoint": "eth gas api",
+      "rf": "R"
+    },
+    {
+      "id": 527,
+      "name": "Stablecoin depeg >%0.5 blok",
+      "type": "risk",
+      "condition": "USDT/USDC depeg >0.005 => pause",
+      "endpoint": "stable price",
+      "rf": "R"
+    },
+    {
+      "id": 528,
+      "name": "Open interest %20 artışta kaldıraç düşür",
+      "type": "risk",
+      "condition": "OI change >20% => leverage *0.5",
+      "endpoint": "fapi OI",
+      "rf": "R"
+    },
+    {
+      "id": 529,
+      "name": "Long/Short ratio >%80 ters blok",
+      "type": "risk",
+      "condition": "LS ratio >0.8 => block same side",
+      "endpoint": "fapi LS ratio",
+      "rf": "R"
+    },
+    {
+      "id": 530,
+      "name": "Taker buy/sell %80 dengesiz ise bekle",
+      "type": "risk",
+      "condition": "taker imbalance >0.8 => pause 10min",
+      "endpoint": "taker data",
+      "rf": "R"
+    },
+    {
+      "id": 531,
+      "name": "4h MA200 altı sadece short",
+      "type": "risk",
+      "condition": "price < MA200 4h => only short",
+      "endpoint": "MA200 4h",
+      "rf": "R"
+    },
+    {
+      "id": 532,
+      "name": "Günlük kâr %3 olursa yarısını çek",
+      "type": "risk",
+      "condition": "daily PnL >3% => take 50% off",
+      "endpoint": "PnL",
+      "rf": "R"
+    },
+    {
+      "id": 533,
+      "name": "Haftalık DD %7 olursa pozisyon %50 küçült",
+      "type": "risk",
+      "condition": "weekly DD >7% => size *0.5",
+      "endpoint": "DD",
+      "rf": "R"
+    },
+    {
+      "id": 534,
+      "name": "Aylık DD %12 olursa 3 gün dur",
+      "type": "risk",
+      "condition": "monthly DD >12% => pause 3d",
+      "endpoint": "DD",
+      "rf": "R"
+    },
+    {
+      "id": 535,
+      "name": "Cüzdan 3 onay altı çekim blok",
+      "type": "risk",
+      "condition": "withdraw <3 conf => block",
+      "endpoint": "tx conf",
+      "rf": "R"
+    },
+    {
+      "id": 536,
+      "name": "IP değişirse otomatik kilitle",
+      "type": "risk",
+      "condition": "IP change => lock",
+      "endpoint": "IP check",
+      "rf": "R"
+    },
+    {
+      "id": 537,
+      "name": "2FA olmadan withdraw blok",
+      "type": "risk",
+      "condition": "no 2FA => no withdraw",
+      "endpoint": "2FA",
+      "rf": "R"
+    },
+    {
+      "id": 538,
+      "name": "Piyasa kapalı saatlerde futures blok",
+      "type": "risk",
+      "condition": "tradfi closed => reduce futures",
+      "endpoint": "market hours",
+      "rf": "R"
+    },
+    {
+      "id": 539,
+      "name": "BTC mempool >100k tx ise bekle",
+      "type": "risk",
+      "condition": "mempool >100k => pause",
+      "endpoint": "mempool api",
+      "rf": "R"
+    },
+    {
+      "id": 540,
+      "name": "Funding 3 kez üst üste pozitif ise long küçült",
+      "type": "risk",
+      "condition": "funding positive 3x => long size *0.7",
+      "endpoint": "funding history",
+      "rf": "R"
+    },
+    {
+      "id": 541,
+      "name": "Volatilite rejim değişirse reset",
+      "type": "risk",
+      "condition": "HMM regime change => close half",
+      "endpoint": "HMM",
+      "rf": "R"
+    },
+    {
+      "id": 542,
+      "name": "Dolar endeksi DXY >105 risk azalt",
+      "type": "risk",
+      "condition": "DXY >105 => size *0.7",
+      "endpoint": "DXY",
+      "rf": "R"
+    },
+    {
+      "id": 543,
+      "name": "VIX >30 ise pozisyon %30",
+      "type": "risk",
+      "condition": "VIX >30 => size *0.3",
+      "endpoint": "VIX",
+      "rf": "R"
+    },
+    {
+      "id": 544,
+      "name": "Tether baskısı >500M ise dikkat",
+      "type": "risk",
+      "condition": "USDT mint >500M => pause 15min",
+      "endpoint": "whale alert",
+      "rf": "R"
+    },
+    {
+      "id": 545,
+      "name": "Balina cüzdanı hareketi >1000 BTC blok",
+      "type": "risk",
+      "condition": "whale move >1000 BTC => pause",
+      "endpoint": "whale alert",
+      "rf": "R"
+    },
+    {
+      "id": 546,
+      "name": "Exchange net inflow >5000 BTC ise short blok",
+      "type": "risk",
+      "condition": "exchange inflow >5000 => no short",
+      "endpoint": "exchange flow",
+      "rf": "R"
+    },
+    {
+      "id": 547,
+      "name": "Miner satış >1000 BTC ise long blok",
+      "type": "risk",
+      "condition": "miner outflow >1000 => no long",
+      "endpoint": "miner flow",
+      "rf": "R"
+    },
+    {
+      "id": 548,
+      "name": "Stablecoin inflow düşük ise risk azalt",
+      "type": "risk",
+      "condition": "stable inflow < -100M => size *0.5",
+      "endpoint": "stable flow",
+      "rf": "R"
+    },
+    {
+      "id": 549,
+      "name": "Kaldıraçlı long likidasyon %100M+ ise bekle",
+      "type": "risk",
+      "condition": "long liq >100M => pause 15min",
+      "endpoint": "liq data",
+      "rf": "R"
+    },
+    {
+      "id": 550,
+      "name": "Kaldıraçlı short likidasyon %100M+ ise bekle",
+      "type": "risk",
+      "condition": "short liq >100M => pause 15min",
+      "endpoint": "liq data",
+      "rf": "R"
+    },
+    {
+      "id": 551,
+      "name": "Google Trends BTC <20 ise hacim düşük blok",
+      "type": "risk",
+      "condition": "trends <20 => size *0.5",
+      "endpoint": "trends",
+      "rf": "R"
+    },
+    {
+      "id": 552,
+      "name": "Fear & Greed 10 altı 24h işlem yok",
+      "type": "risk",
+      "condition": "F&G <10 24h => no new",
+      "endpoint": "F&G",
+      "rf": "R"
+    },
+    {
+      "id": 553,
+      "name": "Fear & Greed 90 üstü 12h işlem yok",
+      "type": "risk",
+      "condition": "F&G >90 12h => no new",
+      "endpoint": "F&G",
+      "rf": "R"
+    },
+    {
+      "id": 554,
+      "name": "BTC haftalık -%15 ise DCA dışında blok",
+      "type": "risk",
+      "condition": "BTC weekly -15% => only DCA",
+      "endpoint": "weekly change",
+      "rf": "R"
+    },
+    {
+      "id": 555,
+      "name": "ETH/BTC paritesi -%5 ise alt blok",
+      "type": "risk",
+      "condition": "ETH/BTC -5% => no alt long",
+      "endpoint": "ETH/BTC",
+      "rf": "R"
+    },
+    {
+      "id": 556,
+      "name": "Günlük kâr hedefine %80 ulaşıldıysa kalan %50 küçült",
+      "type": "risk",
+      "condition": "daily target 80% => size *0.5",
+      "endpoint": "PnL",
+      "rf": "R"
+    },
+    {
+      "id": 557,
+      "name": "Haftalık kâr %10 üstü ise yarısını çek",
+      "type": "risk",
+      "condition": "weekly >10% => withdraw 50%",
+      "endpoint": "PnL",
+      "rf": "R"
+    },
+    {
+      "id": 558,
+      "name": "Aynı yönde 2 stop üst üste ise yön değiştir",
+      "type": "risk",
+      "condition": "2 stops same side => flip",
+      "endpoint": "stops",
+      "rf": "R"
+    },
+    {
+      "id": 559,
+      "name": "Slippage >%0.3 ise emir iptal",
+      "type": "risk",
+      "condition": "slip >0.003 => cancel",
+      "endpoint": "slippage calc",
+      "rf": "R"
+    },
+    {
+      "id": 560,
+      "name": "Ping >300ms ise market emir yerine limit",
+      "type": "risk",
+      "condition": "ping >300 => limit only",
+      "endpoint": "ping",
+      "rf": "R"
+    },
+    {
+      "id": 561,
+      "name": "Funding 5dk içinde ters döner blok",
+      "type": "risk",
+      "condition": "funding flip <5min => pause",
+      "endpoint": "funding history",
+      "rf": "R"
+    },
+    {
+      "id": 562,
+      "name": "Likidasyon ısı haritası yoğun bölge blok",
+      "type": "risk",
+      "condition": "liq heatmap density >80% => no new near",
+      "endpoint": "liq heatmap",
+      "rf": "R"
+    },
+    {
+      "id": 563,
+      "name": "CVD (Kümülatif Vol Delta) -%20 blok",
+      "type": "risk",
+      "condition": "CVD < -20% => no long",
+      "endpoint": "CVD",
+      "rf": "R"
+    },
+    {
+      "id": 564,
+      "name": "Open Interest -%15 anlık crash blok",
+      "type": "risk",
+      "condition": "OI -15% 1m => pause 5min",
+      "endpoint": "OI change",
+      "rf": "R"
+    },
+    {
+      "id": 565,
+      "name": "BTC haftalık EMA20 altı risk %30 küçült",
+      "type": "risk",
+      "condition": "weekly EMA20 < price => size *0.7",
+      "endpoint": "EMA20 weekly",
+      "rf": "R"
+    },
+    {
+      "id": 566,
+      "name": "Stablecoin total marketcap -%2 risk azalt",
+      "type": "risk",
+      "condition": "stable mcap -2% => size *0.5",
+      "endpoint": "stable mcap",
+      "rf": "R"
+    },
+    {
+      "id": 567,
+      "name": "Tether Treasury mint 1B+ 10dk bekle",
+      "type": "risk",
+      "condition": "USDT mint 1B => pause 10min",
+      "endpoint": "Tether",
+      "rf": "R"
+    },
+    {
+      "id": 568,
+      "name": "Grayscale GBTC outflow >$100M long blok",
+      "type": "risk",
+      "condition": "GBTC outflow >100M => no long",
+      "endpoint": "GBTC flow",
+      "rf": "R"
+    },
+    {
+      "id": 569,
+      "name": "ETF net inflow -%50 2 gün long küçült",
+      "type": "risk",
+      "condition": "ETF inflow -50% 2d => size *0.5",
+      "endpoint": "ETF flow",
+      "rf": "R"
+    },
+    {
+      "id": 570,
+      "name": "Kripto korku endeksi 1h -20 puan crash modu",
+      "type": "risk",
+      "condition": "F&G -20 in 1h => close 50%",
+      "endpoint": "F&G delta",
+      "rf": "R"
+    }
+  ],
+  "kar_90": [
+    {
+      "id": 601,
+      "name": "Dinamik TP ATR x3",
+      "type": "kar",
+      "condition": "TP = entry +/- ATR*3",
+      "endpoint": "ATR",
+      "rf": "R",
+      "katki": "Volatilse TP uzar, kâr büyür"
+    },
+    {
+      "id": 602,
+      "name": "Break-even + %0.5 stop girişe",
+      "type": "kar",
+      "condition": "price +0.5% => stop=entry",
+      "endpoint": "price",
+      "rf": "R"
+    },
+    {
+      "id": 603,
+      "name": "TP sonrası %0.5 geri çekilmede re-entry",
+      "type": "kar",
+      "condition": "TP then pullback 0.5% => re-enter",
+      "endpoint": "price",
+      "rf": "R"
+    },
+    {
+      "id": 604,
+      "name": "Kâr %50 çek %50 compounding",
+      "type": "kar",
+      "condition": "profit => 50% withdraw 50% reinvest",
+      "endpoint": "PnL",
+      "rf": "R"
+    },
+    {
+      "id": 605,
+      "name": "En düşük fee borsa oto + BNB discount",
+      "type": "kar",
+      "condition": "choose lowest fee + BNB 25% disc",
+      "endpoint": "6 exchange fees",
+      "rf": "R"
+    },
+    {
+      "id": 606,
+      "name": "Grid seviye ATR'ye göre oto 5-15",
+      "type": "kar",
+      "condition": "grid count = 15 - ATR*100",
+      "endpoint": "ATR",
+      "rf": "R"
+    },
+    {
+      "id": 607,
+      "name": "Funding hedge ekstra %0.05/gün",
+      "type": "kar",
+      "condition": "funding >0 => spot long + perp short",
+      "endpoint": "funding",
+      "rf": "R"
+    },
+    {
+      "id": 608,
+      "name": "VWAP üstü sadece long altı short",
+      "type": "kar",
+      "condition": "price > VWAP => long only",
+      "endpoint": "VWAP",
+      "rf": "R"
+    },
+    {
+      "id": 609,
+      "name": "TWAP 120dk 20 parça balina taktiği",
+      "type": "kar",
+      "condition": "order split 120min 20 parts",
+      "endpoint": "TWAP",
+      "rf": "R"
+    },
+    {
+      "id": 610,
+      "name": "Iceberg emir gizle",
+      "type": "kar",
+      "condition": "show only 10% of order",
+      "endpoint": "iceberg",
+      "rf": "R"
+    },
+    {
+      "id": 611,
+      "name": "Maker emir %80 maker ol",
+      "type": "kar",
+      "condition": "use limit maker 80%",
+      "endpoint": "maker/taker",
+      "rf": "R"
+    },
+    {
+      "id": 612,
+      "name": "Arbitraj üçgen %0.2 üstü",
+      "type": "kar",
+      "condition": "triangular >0.002 => arb",
+      "endpoint": "tri prices",
+      "rf": "R"
+    },
+    {
+      "id": 613,
+      "name": "Basis %0.4 üstü arb",
+      "type": "kar",
+      "condition": "basis >0.004 => spot+perp",
+      "endpoint": "basis",
+      "rf": "R"
+    },
+    {
+      "id": 614,
+      "name": "Volatilite düşükse grid kârı %30 artar",
+      "type": "kar",
+      "condition": "ATR low => grid profit +30%",
+      "endpoint": "ATR",
+      "rf": "R"
+    },
+    {
+      "id": 615,
+      "name": "Trend güçlüyse momentum size x1.5",
+      "type": "kar",
+      "condition": "ADX >25 => mom size *1.5",
+      "endpoint": "ADX",
+      "rf": "R"
+    },
+    {
+      "id": 616,
+      "name": "Range ise mean-rev size x1.5",
+      "type": "kar",
+      "condition": "ADX <20 => meanrev *1.5",
+      "endpoint": "ADX",
+      "rf": "R"
+    },
+    {
+      "id": 617,
+      "name": "Kâr hedefine %90 gelince kalan %30 trailing",
+      "type": "kar",
+      "condition": "90% target => trailing 30%",
+      "endpoint": "PnL",
+      "rf": "R"
+    },
+    {
+      "id": 618,
+      "name": "Günlük ilk trade %0.5 kâr ise gün biter",
+      "type": "kar",
+      "condition": "first trade +0.5% => stop day",
+      "endpoint": "PnL",
+      "rf": "R"
+    },
+    {
+      "id": 619,
+      "name": "Haftalık 3 gün pozitif ise 4. gün %50 küçült",
+      "type": "kar",
+      "condition": "3 wins week => size *0.5 day4",
+      "endpoint": "win streak",
+      "rf": "R"
+    },
+    {
+      "id": 620,
+      "name": "Aylık %15 üstü ise %70 çek",
+      "type": "kar",
+      "condition": "monthly >15% => withdraw 70%",
+      "endpoint": "monthly PnL",
+      "rf": "R"
+    },
+    {
+      "id": 621,
+      "name": "DCA kârı %2 üstü ise hepsini kapat",
+      "type": "kar",
+      "condition": "DCA avg profit >2% => close all",
+      "endpoint": "DCA avg",
+      "rf": "R"
+    },
+    {
+      "id": 622,
+      "name": "Grid kârı %3 üstü ise grid reset",
+      "type": "kar",
+      "condition": "grid profit >3% => reset grid",
+      "endpoint": "grid PnL",
+      "rf": "R"
+    },
+    {
+      "id": 623,
+      "name": "Funding kârı günlük %0.1 üstü ise compounding",
+      "type": "kar",
+      "condition": "funding profit >0.1% daily => reinvest",
+      "endpoint": "funding PnL",
+      "rf": "R"
+    },
+    {
+      "id": 624,
+      "name": "Rebalance %3 sapma kârı al",
+      "type": "kar",
+      "condition": "alloc dev >3% => rebalance profit",
+      "endpoint": "allocation",
+      "rf": "R"
+    },
+    {
+      "id": 625,
+      "name": "Volatilite düşükken leverage x1.2",
+      "type": "kar",
+      "condition": "ATR low => lev *1.2 max 3x",
+      "endpoint": "ATR",
+      "rf": "R"
+    },
+    {
+      "id": 626,
+      "name": "WinRate %70 üstü ise size x1.2",
+      "type": "kar",
+      "condition": "winrate 50 trades >70% => size *1.2",
+      "endpoint": "winrate",
+      "rf": "R"
+    },
+    {
+      "id": 627,
+      "name": "Profit Factor >2 ise size x1.3",
+      "type": "kar",
+      "condition": "PF >2 => size *1.3",
+      "endpoint": "PF",
+      "rf": "R"
+    },
+    {
+      "id": 628,
+      "name": "Sharpe >2 ise size x1.2",
+      "type": "kar",
+      "condition": "Sharpe >2 => size *1.2",
+      "endpoint": "Sharpe",
+      "rf": "R"
+    },
+    {
+      "id": 629,
+      "name": "Gece 00-02 arası funding topla",
+      "type": "kar",
+      "condition": "funding time 00:00-02:00 => collect",
+      "endpoint": "funding time",
+      "rf": "R"
+    },
+    {
+      "id": 630,
+      "name": "Hafta sonu spread %30 artar market making kârı",
+      "type": "kar",
+      "condition": "weekend spread +30% => MM profit",
+      "endpoint": "spread",
+      "rf": "R"
+    },
+    {
+      "id": 631,
+      "name": "Düşük hacimde iceberg ile %0.2 ekstra",
+      "type": "kar",
+      "condition": "low vol => iceberg +0.2%",
+      "endpoint": "volume",
+      "rf": "R"
+    },
+    {
+      "id": 632,
+      "name": "Yüksek hacimde momentum %0.3 ekstra",
+      "type": "kar",
+      "condition": "high vol => mom +0.3%",
+      "endpoint": "volume",
+      "rf": "R"
+    },
+    {
+      "id": 633,
+      "name": "DCA ortalaması %1 altına düşünce ekstra al",
+      "type": "kar",
+      "condition": "price < DCA avg -1% => extra buy",
+      "endpoint": "DCA avg",
+      "rf": "R"
+    },
+    {
+      "id": 634,
+      "name": "Grid üst banda değince %50 kapat",
+      "type": "kar",
+      "condition": "grid top => close 50%",
+      "endpoint": "grid level",
+      "rf": "R"
+    },
+    {
+      "id": 635,
+      "name": "RSI 30 altı 2 kez ise double size",
+      "type": "kar",
+      "condition": "RSI<30 twice => size *2",
+      "endpoint": "RSI",
+      "rf": "R"
+    },
+    {
+      "id": 636,
+      "name": "BB alt bant 2 kez ise double",
+      "type": "kar",
+      "condition": "BB lower twice => size *2",
+      "endpoint": "BB",
+      "rf": "R"
+    },
+    {
+      "id": 637,
+      "name": "Günlük funding 3 kez topla",
+      "type": "kar",
+      "condition": "funding 08:00 16:00 00:00 collect",
+      "endpoint": "funding times",
+      "rf": "R"
+    },
+    {
+      "id": 638,
+      "name": "Kârın %10'u ile deneysel strateji",
+      "type": "kar",
+      "condition": "10% profit => experimental",
+      "endpoint": "profit",
+      "rf": "R"
+    },
+    {
+      "id": 639,
+      "name": "Kaybın %50'sini geri alınca mola bitir",
+      "type": "kar",
+      "condition": "loss recovery 50% => resume",
+      "endpoint": "loss recovery",
+      "rf": "R"
+    },
+    {
+      "id": 640,
+      "name": "Ay sonu kârı %100 çek tatili",
+      "type": "kar",
+      "condition": "month end profit => withdraw 100% profit",
+      "endpoint": "monthly",
+      "rf": "R"
+    },
+    {
+      "id": 641,
+      "name": "Funding negatifken long perp + short spot kâr",
+      "type": "kar",
+      "condition": "funding < -0.02% => long perp short spot",
+      "endpoint": "funding negative",
+      "rf": "R"
+    },
+    {
+      "id": 642,
+      "name": "CVD +%20 ise momentum x2",
+      "type": "kar",
+      "condition": "CVD >20% => mom size *2",
+      "endpoint": "CVD",
+      "rf": "R"
+    },
+    {
+      "id": 643,
+      "name": "OI +%10 trend güç kâr x1.5",
+      "type": "kar",
+      "condition": "OI +10% => size *1.5",
+      "endpoint": "OI",
+      "rf": "R"
+    },
+    {
+      "id": 644,
+      "name": "Liq heatmap boş bölgeye TP uzat",
+      "type": "kar",
+      "condition": "liq low density => TP ATR*4",
+      "endpoint": "liq heatmap",
+      "rf": "R"
+    },
+    {
+      "id": 645,
+      "name": "ETF inflow +%50 ise long size x1.5",
+      "type": "kar",
+      "condition": "ETF inflow +50% => long *1.5",
+      "endpoint": "ETF flow",
+      "rf": "R"
+    },
+    {
+      "id": 646,
+      "name": "Stable mcap +%2 ise alt size x1.3",
+      "type": "kar",
+      "condition": "stable +2% => alt size *1.3",
+      "endpoint": "stable mcap",
+      "rf": "R"
+    },
+    {
+      "id": 647,
+      "name": "DXY -1% ise risk x1.2",
+      "type": "kar",
+      "condition": "DXY -1% => size *1.2",
+      "endpoint": "DXY",
+      "rf": "R"
+    },
+    {
+      "id": 648,
+      "name": "VIX -5 ise size x1.3",
+      "type": "kar",
+      "condition": "VIX -5 => size *1.3",
+      "endpoint": "VIX",
+      "rf": "R"
+    },
+    {
+      "id": 649,
+      "name": "Google Trends +%30 ise momentum +%0.5",
+      "type": "kar",
+      "condition": "trends +30% => mom +0.5%",
+      "endpoint": "trends",
+      "rf": "R"
+    },
+    {
+      "id": 650,
+      "name": "Haftalık 5 gün win ise %100 çek parti modu",
+      "type": "kar",
+      "condition": "5 wins => withdraw 100% profit party",
+      "endpoint": "win streak",
+      "rf": "R"
+    }
+  ],
+  "eski_filtreler": {
+    "risk_40": [
+      "ATR Stop x2",
+      "Time Stop 24h",
+      "Trailing 3 tip",
+      "Kill-Switch günlük -%2 haftalık -%10 aylık -%12",
+      "VaR %95",
+      "CVaR",
+      "MaxDD",
+      "Liq alarm %10",
+      "Funding alarm %30",
+      "Slippage %1",
+      "Blacklist",
+      "Latency <200ms",
+      "Spread %0.1",
+      "Funding saati blok",
+      "F&G blok",
+      "Hafta sonu %50"
+    ],
+    "kar_40": [
+      "Grid ATR",
+      "DCA x1.2",
+      "Funding Arb",
+      "Basis %0.3",
+      "Triangular",
+      "MM",
+      "TP Ladder",
+      "Fee optimize 6 borsa",
+      "Rebalance %5",
+      "Compounding",
+      "TWAP 60dk",
+      "Re-entry",
+      "Break-even"
+    ]
+  },
+  "yeni_eklenen_20": {
+    "risk_10_yeni": [
+      {
+        "id": 561,
+        "name": "Funding 5dk içinde ters döner blok",
+        "type": "risk",
+        "condition": "funding flip <5min => pause",
+        "endpoint": "funding history",
+        "rf": "R"
+      },
+      {
+        "id": 562,
+        "name": "Likidasyon ısı haritası yoğun bölge blok",
+        "type": "risk",
+        "condition": "liq heatmap density >80% => no new near",
+        "endpoint": "liq heatmap",
+        "rf": "R"
+      },
+      {
+        "id": 563,
+        "name": "CVD (Kümülatif Vol Delta) -%20 blok",
+        "type": "risk",
+        "condition": "CVD < -20% => no long",
+        "endpoint": "CVD",
+        "rf": "R"
+      },
+      {
+        "id": 564,
+        "name": "Open Interest -%15 anlık crash blok",
+        "type": "risk",
+        "condition": "OI -15% 1m => pause 5min",
+        "endpoint": "OI change",
+        "rf": "R"
+      },
+      {
+        "id": 565,
+        "name": "BTC haftalık EMA20 altı risk %30 küçült",
+        "type": "risk",
+        "condition": "weekly EMA20 < price => size *0.7",
+        "endpoint": "EMA20 weekly",
+        "rf": "R"
+      },
+      {
+        "id": 566,
+        "name": "Stablecoin total marketcap -%2 risk azalt",
+        "type": "risk",
+        "condition": "stable mcap -2% => size *0.5",
+        "endpoint": "stable mcap",
+        "rf": "R"
+      },
+      {
+        "id": 567,
+        "name": "Tether Treasury mint 1B+ 10dk bekle",
+        "type": "risk",
+        "condition": "USDT mint 1B => pause 10min",
+        "endpoint": "Tether",
+        "rf": "R"
+      },
+      {
+        "id": 568,
+        "name": "Grayscale GBTC outflow >$100M long blok",
+        "type": "risk",
+        "condition": "GBTC outflow >100M => no long",
+        "endpoint": "GBTC flow",
+        "rf": "R"
+      },
+      {
+        "id": 569,
+        "name": "ETF net inflow -%50 2 gün long küçült",
+        "type": "risk",
+        "condition": "ETF inflow -50% 2d => size *0.5",
+        "endpoint": "ETF flow",
+        "rf": "R"
+      },
+      {
+        "id": 570,
+        "name": "Kripto korku endeksi 1h -20 puan crash modu",
+        "type": "risk",
+        "condition": "F&G -20 in 1h => close 50%",
+        "endpoint": "F&G delta",
+        "rf": "R"
+      }
+    ],
+    "kar_10_yeni": [
+      {
+        "id": 641,
+        "name": "Funding negatifken long perp + short spot kâr",
+        "type": "kar",
+        "condition": "funding < -0.02% => long perp short spot",
+        "endpoint": "funding negative",
+        "rf": "R"
+      },
+      {
+        "id": 642,
+        "name": "CVD +%20 ise momentum x2",
+        "type": "kar",
+        "condition": "CVD >20% => mom size *2",
+        "endpoint": "CVD",
+        "rf": "R"
+      },
+      {
+        "id": 643,
+        "name": "OI +%10 trend güç kâr x1.5",
+        "type": "kar",
+        "condition": "OI +10% => size *1.5",
+        "endpoint": "OI",
+        "rf": "R"
+      },
+      {
+        "id": 644,
+        "name": "Liq heatmap boş bölgeye TP uzat",
+        "type": "kar",
+        "condition": "liq low density => TP ATR*4",
+        "endpoint": "liq heatmap",
+        "rf": "R"
+      },
+      {
+        "id": 645,
+        "name": "ETF inflow +%50 ise long size x1.5",
+        "type": "kar",
+        "condition": "ETF inflow +50% => long *1.5",
+        "endpoint": "ETF flow",
+        "rf": "R"
+      },
+      {
+        "id": 646,
+        "name": "Stable mcap +%2 ise alt size x1.3",
+        "type": "kar",
+        "condition": "stable +2% => alt size *1.3",
+        "endpoint": "stable mcap",
+        "rf": "R"
+      },
+      {
+        "id": 647,
+        "name": "DXY -1% ise risk x1.2",
+        "type": "kar",
+        "condition": "DXY -1% => size *1.2",
+        "endpoint": "DXY",
+        "rf": "R"
+      },
+      {
+        "id": 648,
+        "name": "VIX -5 ise size x1.3",
+        "type": "kar",
+        "condition": "VIX -5 => size *1.3",
+        "endpoint": "VIX",
+        "rf": "R"
+      },
+      {
+        "id": 649,
+        "name": "Google Trends +%30 ise momentum +%0.5",
+        "type": "kar",
+        "condition": "trends +30% => mom +0.5%",
+        "endpoint": "trends",
+        "rf": "R"
+      },
+      {
+        "id": 650,
+        "name": "Haftalık 5 gün win ise %100 çek parti modu",
+        "type": "kar",
+        "condition": "5 wins => withdraw 100% profit party",
+        "endpoint": "win streak",
+        "rf": "R"
+      }
+    ]
+  },
+  "tek_indirme": {
+    "aciklama": "2017-2026 10 yıllık 1m veriyi tek tıkla indir, blacktest için birleştirilmiş JSON oluştur",
+    "url_listesi": [
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2017_1m%20(1).json",
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2018_1m.json",
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2019_1m.json",
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2020_1m.json",
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2021_1m.json",
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2022_1m.json",
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2023_1m.json",
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2024_1m.json",
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2025_1m.json",
+      "https://raw.githubusercontent.com/ailubilayai-creator/General/refs/heads/main/btc_data_2026_1m.json"
+    ],
+    "nasil": "Artifact'te 'Tüm Yılları Tek Tıkla İndir (10 Yıl 1m)' butonu -> 10 URL'yi paralel fetch -> tek bir btc_data_2017_2026_1m.json olarak birleştir -> indir. Blacktest bu birleşik dosya üzerinden yapılır."
+  }
+}
